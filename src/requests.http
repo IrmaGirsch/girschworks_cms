@@ -1,0 +1,11 @@
+### Test GET /
+GET http://localhost:4000
+
+### Test POST /content
+POST http://localhost:4000/content
+Content-Type: application/json
+
+{
+  "title": "My first CMS post",
+  "body": "This is some content."
+}
