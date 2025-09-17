@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenant CMS Models
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String   @unique
+  subdomain String?  @unique // For subdomain-based routing
+  settings  Json?    // Tenant-specific settings
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  users     User[]
+  sites     Site[]
+  
+  @@map("tenants")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  firstName String?
+  lastName  String?
+  role      Role     @default(EDITOR)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Multi-tenant relation
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  createdPages Page[] @relation("PageAuthor")
+  
+  @@map("users")
+}
+
+model Site {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String?  @unique // Custom domain for the site
+  description String?
+  logo        String?  // URL to logo image
+  favicon     String?  // URL to favicon
+  theme       String   @default("default")
+  isPublished Boolean  @default(false)
+  seoSettings Json?    // SEO metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Multi-tenant relation
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  pages       Page[]
+  media       Media[]
+  
+  @@map("sites")
+}
+
+model Page {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String
+  content     Json        // Rich content stored as JSON
+  excerpt     String?
+  status      PageStatus  @default(DRAFT)
+  isHomePage  Boolean     @default(false)
+  seoTitle    String?
+  seoDescription String?
+  featuredImage String?   // URL to featured image
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  siteId      String
+  site        Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  authorId    String
+  author      User        @relation("PageAuthor", fields: [authorId], references: [id])
+  
+  // Ensure unique slug per site
+  @@unique([siteId, slug])
+  @@map("pages")
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int       // File size in bytes
+  url         String    // URL to the file
+  alt         String?   // Alt text for accessibility
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  siteId      String
+  site        Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  @@map("media")
+}
+
+// Enums
+
+enum Role {
+  SUPER_ADMIN // Can manage all tenants
+  ADMIN       // Can manage their tenant
+  EDITOR      // Can create and edit content
+  VIEWER      // Can only view content
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
