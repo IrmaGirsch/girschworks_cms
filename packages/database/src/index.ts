@@ -1,4 +1,4 @@
-import { PrismaClient } from './generated';
+import { PrismaClient } from '@prisma/client';
 
 // Singleton pattern for Prisma client
 const globalForPrisma = globalThis as unknown as {
@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Re-export Prisma types for use in other packages
-export * from './generated';
+export * from '@prisma/client';
 
 // Helper function to connect to database
 export async function connectDatabase() {
