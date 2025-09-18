@@ -1,0 +1,261 @@
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbWZvNTZ1NDIwMDAyN3RhY3dseW40N29pIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJBRE1JTiIsInRlbmFudElkIjoiY21mbzU2dTN3MDAwMDd0YWNraWMwYm8wMCIsImlhdCI6MTc1ODIwOTM2MiwiZXhwIjoxNzU4Mjk1NzYyLCJhdWQiOiJnaXJzY2h3b3Jrcy1jbXMtdXNlcnMiLCJpc3MiOiJnaXJzY2h3b3Jrcy1jbXMifQ.pyJm4FRd1t_n5qQ19Badk8HjJMMKBobtJ8gNPEKg6gQ
+
+### ==== SITES MANAGEMENT ====
+
+### Create a new site
+POST http://localhost:4000/sites
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "My First Website", 
+  "domain": "myfirstsite.com",
+  "description": "A test website for the CMS",
+  "theme": "modern",
+  "seoSettings": {
+    "defaultTitle": "My First Website",
+    "defaultDescription": "Welcome to my website",
+    "keywords": ["business", "services", "local"]
+  }
+}
+
+### Get all sites for current tenant
+GET http://localhost:4000/sites
+Authorization: Bearer {{authToken}}
+
+### Get specific site (replace with actual site ID)
+GET http://localhost:4000/sites/cmfpkk38300017tggg3cksodu
+Authorization: Bearer {{authToken}}
+
+### Update a site (replace with actual site ID)
+PUT http://localhost:4000/sites/cmfpkk38300017tggg3cksodu
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "description": "Updated description for my website",
+  "seoSettings": {
+    "defaultTitle": "My Updated Website",
+    "defaultDescription": "This is my updated website description"
+  }
+}
+
+### Publish a site (replace with actual site ID)
+PATCH http://localhost:4000/sites/cmfpkk38300017tggg3cksodu/publish
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "isPublished": true
+}
+
+### ==== PAGES MANAGEMENT ====
+
+### Create a new page (replace SITE_ID_HERE with actual site ID)
+POST http://localhost:4000/pages
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "siteId": "cmfpkk38300017tggg3cksodu",
+  "title": "Home Page",
+  "slug": "home",
+  "content": {
+    "blocks": [
+      {
+        "type": "heading",
+        "data": {
+          "text": "Welcome to Our Website",
+          "level": 1
+        }
+      },
+      {
+        "type": "paragraph", 
+        "data": {
+          "text": "This is the home page content. You can add more blocks here."
+        }
+      }
+    ]
+  },
+  "excerpt": "Welcome to our amazing website",
+  "status": "PUBLISHED",
+  "isHomePage": true,
+  "seoTitle": "Home - My First Website",
+  "seoDescription": "Welcome to our website homepage"
+}
+
+### Create another page
+POST http://localhost:4000/pages
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "siteId": "cmfpkk38300017tggg3cksodu",
+  "title": "About Us",
+  "slug": "about",
+  "content": {
+    "blocks": [
+      {
+        "type": "heading",
+        "data": {
+          "text": "About Our Company",
+          "level": 1
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "text": "We are a company that does great things."
+        }
+      }
+    ]
+  },
+  "excerpt": "Learn more about our company",
+  "status": "DRAFT",
+  "seoTitle": "About Us - My First Website"
+}
+
+### Get all pages
+GET http://localhost:4000/pages
+Authorization: Bearer {{authToken}}
+
+### Get pages for specific site
+GET http://localhost:4000/pages?siteId=cmfpkk38300017tggg3cksodu
+Authorization: Bearer {{authToken}}
+
+### Search pages
+GET http://localhost:4000/pages?search=home
+Authorization: Bearer {{authToken}}
+
+### Get specific page (replace with actual page ID)
+GET http://localhost:4000/pages/cmfplety700017txw7vgocqp6
+Authorization: Bearer {{authToken}}
+
+### Update a page (replace with actual page ID)
+PUT http://localhost:4000/pages/cmfplety700017txw7vgocqp6
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Updated About Us",
+  "content": {
+    "blocks": [
+      {
+        "type": "heading",
+        "data": {
+          "text": "About Our Amazing Company",
+          "level": 1
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "text": "We are an amazing company that creates incredible solutions for our clients."
+        }
+      }
+    ]
+  },
+  "excerpt": "Updated excerpt about our company"
+}
+
+### Publish a page (replace with actual page ID)
+PATCH http://localhost:4000/pages/cmfplety700017txw7vgocqp6/publish
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "status": "PUBLISHED"
+}
+
+### ==== MEDIA MANAGEMENT ====
+
+### Upload media metadata (replace SITE_ID_HERE with actual site ID)
+### Note: In production, you'd upload the actual file to a storage service first
+POST http://localhost:4000/media
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "siteId": "cmfpkk38300017tggg3cksodu",
+  "filename": "company-logo.png",
+  "originalName": "Company Logo.png",
+  "mimeType": "image/png",
+  "size": 15420,
+  "url": "https://example.com/uploads/company-logo.png",
+  "alt": "Company logo"
+}
+
+### Upload another media file
+POST http://localhost:4000/media
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "siteId": "cmfpkk38300017tggg3cksodu", 
+  "filename": "about-us-hero.jpg",
+  "originalName": "About Us Hero Image.jpg",
+  "mimeType": "image/jpeg",
+  "size": 234567,
+  "url": "https://example.com/uploads/about-us-hero.jpg",
+  "alt": "About us hero image"
+}
+
+### Get all media
+GET http://localhost:4000/media
+Authorization: Bearer {{authToken}}
+
+### Get media for specific site
+GET http://localhost:4000/media?siteId=cmfpkk38300017tggg3cksodu
+Authorization: Bearer {{authToken}}
+
+### Get only images
+GET http://localhost:4000/media?type=images
+Authorization: Bearer {{authToken}}
+
+### Search media
+GET http://localhost:4000/media?search=logo
+Authorization: Bearer {{authToken}}
+
+### Get specific media file (replace with actual media ID)
+GET http://localhost:4000/media/MEDIA_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### Update media metadata (replace with actual media ID)
+PUT http://localhost:4000/media/MEDIA_ID_HERE
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "alt": "Updated company logo description"
+}
+
+### Delete media file (replace with actual media ID)
+DELETE http://localhost:4000/media/MEDIA_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### ==== ERROR TESTING ====
+
+### Try to access without token (should fail)
+GET http://localhost:4000/sites
+
+### Try to create site with invalid data (should fail)
+POST http://localhost:4000/sites
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "",
+  "domain": "invalid-domain"
+}
+
+### Try to create page with duplicate slug (should fail after first page created)
+POST http://localhost:4000/pages
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "siteId": "cmfpkk38300017tggg3cksodu",
+  "title": "Another Home Page",
+  "slug": "home",
+  "content": {}
+}

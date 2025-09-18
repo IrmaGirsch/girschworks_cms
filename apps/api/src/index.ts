@@ -6,6 +6,9 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import { connectDatabase } from "@girschworks/database";
 import authRoutes from "./routes/auth";
+import sitesRoutes from "./routes/sites";
+import pagesRoutes from "./routes/pages";
+import mediaRoutes from "./routes/media";
 
 // Load environment variables
 dotenv.config();
@@ -40,13 +43,19 @@ app.get("/", (req: Request, res: Response) => {
     environment: process.env.NODE_ENV || "development",
     endpoints: {
       auth: "/auth",
+      sites: "/sites",
+      pages: "/pages", 
+      media: "/media",
       health: "/health"
     }
   });
 });
 
-// Auth routes
+// Mount route handlers
 app.use("/auth", authRoutes);
+app.use("/sites", sitesRoutes);
+app.use("/pages", pagesRoutes);
+app.use("/media", mediaRoutes);
 
 // Example content route (placeholder for CMS content API)
 app.post("/content", (req: Request, res: Response) => {

@@ -22,6 +22,7 @@ A modern, multi-tenant Content Management System built for small-to-medium busin
 - **Database**: PostgreSQL + Prisma ORM  
 - **Authentication**: JWT + bcrypt
 - **Monorepo**: Turborepo
+- **Validation**: Zod schemas
 - **Frontend**: React + Next.js (planned)
 - **Deployment**: Docker ready
 
@@ -35,12 +36,21 @@ A modern, multi-tenant Content Management System built for small-to-medium busin
 - [x] Protected API routes with middleware
 - [x] User registration and login endpoints
 
+### Content Management System
+- [x] **Sites Management**: Full CRUD operations with domain management
+- [x] **Pages Management**: Rich content with JSON block structure
+- [x] **Media Management**: File metadata storage with categorization
+- [x] **Publication Workflow**: Draft → Published → Archived states
+- [x] **SEO Optimization**: Meta titles, descriptions, and keywords
+- [x] **Multi-tenant Isolation**: Complete data separation by organization
+- [x] **Role-based Permissions**: Different access levels for different user types
+
 ### Database Schema
-- [x] Multi-tenant architecture
-- [x] User management with tenant isolation
-- [x] Site and page content models
-- [x] Media storage structure
-- [x] SEO metadata support
+- [x] Multi-tenant architecture with cascade deletion
+- [x] User management with tenant association
+- [x] Site and page content models with relationships
+- [x] Media storage structure with metadata
+- [x] SEO metadata support throughout
 
 ### Development Infrastructure
 - [x] TypeScript throughout
@@ -48,6 +58,8 @@ A modern, multi-tenant Content Management System built for small-to-medium busin
 - [x] Development hot reload
 - [x] Environment variable management
 - [x] Database migrations with Prisma
+- [x] Input validation with Zod schemas
+- [x] Comprehensive error handling
 
 ## 🚀 Getting Started
 
@@ -71,8 +83,9 @@ A modern, multi-tenant Content Management System built for small-to-medium busin
 
 3. **Set up environment variables**
    ```bash
-   # Copy .env file to both root and database package
+   # Copy and update .env file
    cp .env.example .env
+   # Also copy to database package
    cp .env packages/database/.env
    ```
 
@@ -95,71 +108,110 @@ A modern, multi-tenant Content Management System built for small-to-medium busin
    npm run dev
    ```
 
-### Testing Authentication
+## 📖 API Documentation
 
-The API will be running at `http://localhost:4000`. Test the authentication endpoints:
+The API will be running at `http://localhost:4000`. 
 
-**Register a new tenant and admin user:**
+### Authentication Endpoints
+
+**Register new tenant and admin user:**
 ```bash
-curl -X POST http://localhost:4000/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@company.com",
-    "password": "securepassword123",
-    "firstName": "John",
-    "lastName": "Doe",
-    "tenantName": "Your Company",
-    "tenantDomain": "yourcompany.com"
-  }'
+POST /auth/register
+{
+  "email": "admin@company.com",
+  "password": "securepassword123",
+  "firstName": "John",
+  "lastName": "Doe", 
+  "tenantName": "Your Company",
+  "tenantDomain": "yourcompany.com"
+}
 ```
 
 **Login:**
 ```bash
-curl -X POST http://localhost:4000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@company.com",
-    "password": "securepassword123"
-  }'
+POST /auth/login
+{
+  "email": "admin@company.com",
+  "password": "securepassword123"
+}
 ```
+
+**Get current user:**
+```bash
+GET /auth/me
+Authorization: Bearer <token>
+```
+
+### Content Management Endpoints
+
+**Sites:**
+- `GET /sites` - List all sites for tenant
+- `POST /sites` - Create new site
+- `GET /sites/:id` - Get specific site
+- `PUT /sites/:id` - Update site
+- `PATCH /sites/:id/publish` - Publish/unpublish site
+- `DELETE /sites/:id` - Delete site
+
+**Pages:**
+- `GET /pages` - List pages (with filtering)
+- `POST /pages` - Create new page
+- `GET /pages/:id` - Get specific page
+- `PUT /pages/:id` - Update page
+- `PATCH /pages/:id/publish` - Change publication status
+- `DELETE /pages/:id` - Delete page
+
+**Media:**
+- `GET /media` - List media files (with filtering)
+- `POST /media` - Upload media metadata
+- `GET /media/:id` - Get specific media file
+- `PUT /media/:id` - Update media metadata
+- `DELETE /media/:id` - Delete media file
+
+### Testing
+
+Use the provided test files:
+- `apps/api/src/test-auth.http` - Authentication endpoints
+- `apps/api/src/test-cms.http` - Content management endpoints
 
 ## 📁 Project Structure
 
 ### API (`apps/api`)
 - **Authentication**: JWT-based auth with tenant isolation
-- **Middleware**: Route protection and validation
-- **Database**: Prisma client integration
-- **Security**: Helmet, CORS, rate limiting ready
+- **Routes**: RESTful API endpoints for all CMS functionality
+- **Middleware**: Route protection, validation, and error handling
+- **Database**: Prisma client integration with connection management
 
 ### Database Package (`packages/database`)
-- **Schema**: Multi-tenant Prisma schema
-- **Models**: Users, Tenants, Sites, Pages, Media
-- **Client**: Singleton Prisma client with connection management
+- **Schema**: Multi-tenant Prisma schema with relationships
+- **Models**: Users, Tenants, Sites, Pages, Media with proper constraints
+- **Client**: Singleton Prisma client with connection pooling
 
 ## 🛡️ Security Features
 
 - Password hashing with bcrypt (12 salt rounds)
-- JWT tokens with expiration
-- SQL injection protection via Prisma
-- CORS configuration
-- Security headers with Helmet
-- Input validation with Zod
-- Multi-tenant data isolation
+- JWT tokens with expiration and refresh capability
+- SQL injection protection via Prisma ORM
+- CORS configuration for frontend integration
+- Security headers with Helmet middleware
+- Input validation with Zod schemas
+- Multi-tenant data isolation with database-level constraints
+- Role-based access control with permission checking
 
 ## 🗄️ Database Schema
 
 ### Core Models
-- **Tenants**: Organizations/companies using the CMS
-- **Users**: Multi-role users with tenant association  
-- **Sites**: Websites belonging to tenants
-- **Pages**: Individual web pages with rich content
-- **Media**: File storage with metadata
+- **Tenants**: Organizations using the CMS with domain isolation
+- **Users**: Multi-role users with tenant association and permissions
+- **Sites**: Websites belonging to tenants with SEO settings
+- **Pages**: Individual web pages with rich JSON content structure
+- **Media**: File storage metadata with categorization and search
 
-### Relationships
-- One tenant has many users, sites
-- One site has many pages, media files
-- One user can create many pages
-- Built-in cascade deletion for data consistency
+### Key Features
+- Automatic cascade deletion for data consistency
+- Unique constraints for domains and slugs
+- JSON content storage for flexible page structures
+- SEO metadata throughout all content types
+- Audit trails with created/updated timestamps
 
 ## 🔧 Development Commands
 
@@ -183,26 +235,48 @@ npm run test
 
 ## 🚦 Current Status
 
-**Phase 1 Complete: Foundation**
+**Phase 1 Complete: Foundation ✅**
 - ✅ Monorepo setup with Turborepo
 - ✅ Database schema and authentication
 - ✅ API architecture and security
 - ✅ Development environment
 
-**Phase 2 In Progress: Core CMS**
-- 🔄 Content management APIs
-- 🔄 File upload and media handling  
-- 🔄 Multi-tenant middleware enhancement
+**Phase 2 Complete: Content Management APIs ✅**
+- ✅ Sites management with domain handling
+- ✅ Pages management with rich content structure
+- ✅ Media management with metadata storage
+- ✅ Publication workflow and SEO optimization
+- ✅ Multi-tenant data isolation and permissions
+- ✅ Comprehensive validation and error handling
 
-**Phase 3 Planned: Frontend**
-- 📅 Admin dashboard (Next.js)
-- 📅 Client website generator
-- 📅 Theme system
+**Phase 3 Planned: Frontend Development**
+- 📅 Admin dashboard (Next.js) with modern UI
+- 📅 Content editor with block-based interface
+- 📅 Media library with drag-and-drop upload
+- 📅 Site preview and theme management
+- 📅 User management interface
 
-**Phase 4 Planned: Deployment**
+**Phase 4 Planned: Client Site Generation**
+- 📅 Dynamic website generation from CMS data
+- 📅 Theme system with customizable templates
+- 📅 Static site generation for performance
+- 📅 SEO optimization and sitemap generation
+
+**Phase 5 Planned: Deployment & Production**
 - 📅 Docker containerization
-- 📅 CI/CD pipeline
-- 📅 Production deployment
+- 📅 CI/CD pipeline with automated testing
+- 📅 Production deployment infrastructure
+- 📅 Monitoring and performance optimization
+
+## 🎯 What Makes This Different
+
+Unlike WordPress, this CMS provides:
+- **True Multi-tenancy**: Complete data isolation between clients
+- **Modern Architecture**: TypeScript, modern React, and API-first design
+- **Better Security**: JWT auth, input validation, and secure by default
+- **Developer Experience**: Full type safety, automated testing, and clear separation of concerns
+- **Performance**: No plugin bloat, optimized database queries, and static generation ready
+- **Scalability**: Microservices-ready architecture with proper caching strategies
 
 ## 👥 Team
 
